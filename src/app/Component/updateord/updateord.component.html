@@ -1,0 +1,595 @@
+<!-- Template Angular (.html) -->
+<div class="main-container">
+  <div class="header">
+    <h1><i class="fas fa-file-medical-alt me-3"></i>Recherche d'Ordonnances</h1>
+    <div class="subtitle">Système de Gestion Médicale - Interface Professionnelle</div>
+  </div>
+
+  <div class="form-container">
+    <!-- Section de recherche -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <i class="fas fa-search"></i>
+        Recherche par Numéro de Dossier
+      </h3>
+      
+      <div class="form-group">
+        <label class="form-label">Numéro de dossier</label>
+        <div class="input-group">
+          <i class="fas fa-hashtag input-icon"></i>
+          <input 
+            type="text" 
+            [(ngModel)]="numeroDossier" 
+            class="form-control" 
+            placeholder="Ex: DOS-2024-001" />
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button (click)="rechercherEtAfficherOrdonnance()" class="btn btn-primary">
+          <i class="fas fa-search me-2"></i>Rechercher l'ordonnance
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages d'alerte -->
+    <div *ngIf="erreur" class="message error">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      {{ erreur }}
+    </div>
+    
+    <div *ngIf="succes" class="message success">
+      <i class="fas fa-check-circle me-2"></i>
+      {{ succes }}
+    </div>
+
+    <!-- Section Ordonnance trouvée -->
+    <div *ngIf="ordonnance">
+      <!-- Informations Patient -->
+      <div class="form-section patient-section">
+        <h3 class="section-title">
+          <i class="fas fa-user-injured"></i>
+          Informations Patient
+        </h3>
+
+        <div class="patient-card">
+          <div class="patient-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="patient-info">
+            <h4>{{ ordonnance.nomPatient }}</h4>
+            <p>Dossier médical actuel</p>
+          </div>
+          <div class="status-badge">
+            <span class="badge-active">Actif</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informations médicales actuelles -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-clipboard-list"></i>
+          Informations Médicales Actuelles
+        </h3>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Diagnostic</label>
+              <div class="input-group">
+                <i class="fas fa-stethoscope input-icon"></i>
+                <input type="text" [value]="ordonnance.maladie" class="form-control" readonly />
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Médecin prescripteur</label>
+              <div class="input-group">
+                <i class="fas fa-user-md input-icon"></i>
+                <input type="text" [value]="'Dr. ' + ordonnance.docteur" class="form-control" readonly />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Médicaments prescrits</label>
+          <div class="input-group">
+            <i class="fas fa-pills input-icon"></i>
+            <textarea [value]="ordonnance.medicament" class="form-control" readonly rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section de modification -->
+      <div class="form-section modification-section">
+        <h3 class="section-title">
+          <i class="fas fa-edit"></i>
+          Modifier l'Ordonnance
+        </h3>
+
+        <!-- Nouveau diagnostic -->
+        <div class="form-group">
+          <label class="form-label">Nouveau diagnostic</label>
+          <div class="input-group">
+            <i class="fas fa-notes-medical input-icon"></i>
+            <input 
+              type="text" 
+              [(ngModel)]="maladieModifiee" 
+              class="form-control" 
+              placeholder="Modifier le diagnostic" />
+          </div>
+        </div>
+
+        <!-- Nouveau médecin -->
+        <div class="form-group">
+          <label class="form-label">Nouveau médecin</label>
+          <div class="input-group">
+            <i class="fas fa-user-md input-icon"></i>
+            <input 
+              type="text" 
+              [(ngModel)]="docteurModifie" 
+              class="form-control" 
+              placeholder="Changer de médecin" />
+          </div>
+        </div>
+
+        <!-- Gestion des médicaments -->
+        <div class="form-group">
+          <label class="form-label">Ajouter des médicaments</label>
+          <div class="input-group mb-3">
+            <i class="fas fa-prescription input-icon"></i>
+            <input 
+              type="text" 
+              [(ngModel)]="medicamentInput" 
+              class="form-control" 
+              placeholder="Saisir un nouveau médicament" />
+          </div>
+          <button (click)="ajouterMedicament()" class="btn btn-add">
+            <i class="fas fa-plus me-2"></i>Ajouter Médicament
+          </button>
+          <small class="form-hint mt-2">{{ message }}</small>
+        </div>
+
+        <!-- Liste des médicaments ajoutés -->
+        <div class="form-group" *ngIf="medicaments && medicaments.length > 0">
+          <label class="form-label">Médicaments ajoutés ({{ medicaments.length }})</label>
+          <div class="medication-list">
+            <div *ngFor="let med of medicaments; let i = index" class="medication-item">
+              <i class="fas fa-pills"></i>
+              <span class="med-name">{{ med }}</span>
+              <button 
+                (click)="medicaments.splice(i, 1)" 
+                class="btn-remove">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="!medicaments || medicaments.length === 0">
+          <i class="fas fa-prescription-bottle fa-2x mb-2"></i>
+          <p>Aucun médicament supplémentaire ajouté</p>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="action-buttons">
+          <button (click)="modifierOrdonnance()" class="btn btn-success">
+            <i class="fas fa-save me-2"></i>Enregistrer les modifications
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CSS à ajouter dans votre component.css -->
+<style>
+* {
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.main-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 2rem auto;
+  max-width: 1000px;
+  overflow: hidden;
+}
+
+.header {
+  background: linear-gradient(135deg, #2c5aa0 0%, #1e3c72 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+  opacity: 0.3;
+}
+
+.header h1 {
+  font-size: 2.2rem;
+  font-weight: 300;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.subtitle {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-top: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.form-container {
+  padding: 2.5rem;
+}
+
+.form-section {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+.modification-section {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+  border: 2px dashed rgba(99, 102, 241, 0.3);
+}
+
+.section-title {
+  color: #2c5aa0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #e3f2fd;
+  padding-bottom: 0.5rem;
+}
+
+.section-title i {
+  margin-right: 0.8rem;
+  font-size: 1.2rem;
+}
+
+/* Patient Card */
+.patient-section {
+  background: linear-gradient(135deg, rgba(44, 90, 160, 0.05), rgba(30, 60, 114, 0.05));
+}
+
+.patient-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 1.5rem;
+  border-radius: 15px;
+  border: 1px solid rgba(44, 90, 160, 0.1);
+}
+
+.patient-avatar {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #2c5aa0, #1e3c72);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.patient-info h4 {
+  margin: 0;
+  color: #2c5aa0;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.patient-info p {
+  margin: 0.25rem 0 0 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.status-badge {
+  margin-left: auto;
+}
+
+.badge-active {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.6rem;
+  font-size: 0.95rem;
+}
+
+.form-control {
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.form-control:focus {
+  border-color: #2c5aa0;
+  box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.15);
+  background: white;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.form-control[readonly] {
+  background: #f1f3f4;
+  color: #6c757d;
+}
+
+.input-group {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  z-index: 5;
+}
+
+.input-group .form-control {
+  padding-left: 3rem;
+}
+
+.btn {
+  border-radius: 10px;
+  padding: 0.7rem 1.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.btn-add {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745, #1e7e34);
+  color: white;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.medication-list {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1rem;
+  border: 2px dashed #dee2e6;
+  transition: all 0.3s ease;
+}
+
+.medication-list:hover {
+  border-color: #2c5aa0;
+  background: #e3f2fd;
+}
+
+.medication-item {
+  background: white;
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  border-left: 4px solid #2c5aa0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
+}
+
+.medication-item:hover {
+  transform: translateX(5px);
+}
+
+.medication-item:last-child {
+  margin-bottom: 0;
+}
+
+.medication-item i {
+  color: #2c5aa0;
+  margin-right: 0.8rem;
+}
+
+.med-name {
+  flex-grow: 1;
+  font-weight: 500;
+}
+
+.btn-remove {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+}
+
+.btn-remove:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.empty-state {
+  text-align: center;
+  color: #6c757d;
+  padding: 2rem;
+}
+
+.empty-state i {
+  opacity: 0.5;
+}
+
+.message {
+  margin-top: 2rem;
+  padding: 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  text-align: center;
+  animation: fadeIn 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.message.success {
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.form-hint {
+  color: #6c757d;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    margin: 1rem;
+    border-radius: 15px;
+  }
+  
+  .form-container {
+    padding: 1.5rem;
+  }
+  
+  .header {
+    padding: 1.5rem;
+  }
+  
+  .header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .patient-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+</style>

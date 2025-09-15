@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Gestion des Ordonnances</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 2rem auto;
+            max-width: 900px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3c72 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 300;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .form-container {
+            padding: 2.5rem;
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+        }
+        
+        .section-title {
+            color: #2c5aa0;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #e3f2fd;
+            padding-bottom: 0.5rem;
+        }
+        
+        .section-title i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+        }
+        
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .form-control:focus {
+            border-color: #2c5aa0;
+            box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.15);
+            background: white;
+            transform: translateY(-1px);
+        }
+        
+        .form-control[readonly] {
+            background: #f1f3f4;
+            color: #6c757d;
+        }
+        
+        .btn {
+            border-radius: 10px;
+            padding: 0.7rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-add {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-verify {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .medication-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            border: 2px dashed #dee2e6;
+            transition: all 0.3s ease;
+        }
+        
+        .medication-list:hover {
+            border-color: #2c5aa0;
+            background: #e3f2fd;
+        }
+        
+        .medication-item {
+            background: white;
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid #2c5aa0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            transition: transform 0.2s ease;
+        }
+        
+        .medication-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .medication-item i {
+            color: #2c5aa0;
+            margin-right: 0.8rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .message {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .message.success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            z-index: 5;
+        }
+        
+        .input-group .form-control {
+            padding-left: 3rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                border-radius: 15px;
+            }
+            
+            .form-container {
+                padding: 1.5rem;
+            }
+            
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+  <div class="main-container">
+    <div class="header">
+      <h1><i class="fas fa-prescription-bottle-alt me-3"></i>Système de Gestion des Ordonnances</h1>
+      <div class="subtitle">Cabinet Médical - Gestion Professionnelle</div>
+    </div>
+
+    <div class="form-container">
+      <!-- Section Patient -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-user-injured"></i>
+          Informations Patient
+        </h3>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">ID Patient</label>
+              <div class="input-group">
+                <i class="fas fa-hashtag input-icon"></i>
+                <input type="number" [(ngModel)]="patientId" class="form-control" readonly />
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Nom du patient</label>
+              <div class="input-group">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" [(ngModel)]="nomPatient" class="form-control" placeholder="Nom du patient" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Diagnostic -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-stethoscope"></i>
+          Diagnostic Médical
+        </h3>
+
+        <div class="form-group">
+          <label class="form-label">Maladie</label>
+          <div class="input-group">
+            <i class="fas fa-notes-medical input-icon"></i>
+            <input type="text" [(ngModel)]="maladie" class="form-control" placeholder="Maladie" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Médicaments -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-pills"></i>
+          Prescription Médicamenteuse
+        </h3>
+
+        <div class="form-group">
+          <label class="form-label">Médicament</label>
+          <div class="input-group mb-3">
+            <i class="fas fa-prescription input-icon"></i>
+            <input type="text" [(ngModel)]="medicamentInput" class="form-control" placeholder="Saisir un médicament" />
+          </div>
+          <button (click)="ajouterMedicament()" class="btn btn-add">
+            <i class="fas fa-plus me-2"></i>Ajouter Médicament
+          </button>
+        </div>
+
+        <!-- Liste des médicaments -->
+        <div class="form-group mt-4">
+          <label class="form-label">Médicaments ajoutés</label>
+          <div class="medication-list">
+            <div *ngIf="medicaments.length === 0" class="text-center text-muted py-3">
+              <i class="fas fa-prescription-bottle fa-2x mb-2"></i>
+              <p>Aucun médicament ajouté</p>
+            </div>
+            <div *ngFor="let med of medicaments" class="medication-item">
+              <i class="fas fa-pills"></i>
+              <span>{{ med }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Docteur -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-user-md"></i>
+          Praticien
+        </h3>
+
+        <div class="form-group">
+          <label class="form-label">Docteur</label>
+          <div class="input-group">
+            <i class="fas fa-user-md input-icon"></i>
+            <input type="text" [(ngModel)]="docteur" class="form-control" placeholder="Docteur" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="action-buttons">
+        <button (click)="creerOrdonnance()" class="btn btn-success">
+          <i class="fas fa-save me-2"></i>Créer
+        </button>
+        <button (click)="verifier()" class="btn btn-verify">
+          <i class="fas fa-check-double me-2"></i>Vérifier
+        </button>
+      </div>
+
+      <hr />
+
+      <!-- Affichage des messages d'erreur ou succès -->
+      <p class="message mt-3" [style.color]="message.startsWith('✅') ? 'green' : 'red'">{{ message }}</p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
