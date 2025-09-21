@@ -1,460 +1,144 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vérification d'Ordonnance - Pharmacie</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #2c5aa0;
-            --secondary-color: #34d399;
-            --danger-color: #ef4444;
-            --warning-color: #f59e0b;
-            --dark-blue: #1e3a8a;
-            --light-blue: #dbeafe;
-            --gradient-primary: linear-gradient(135deg, #2c5aa0 0%, #3b82f6 100%);
-            --gradient-secondary: linear-gradient(135deg, #059669 0%, #34d399 100%);
-            --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px 0;
-        }
-
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .header-section {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
-        }
-
-        .header-section h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            letter-spacing: -1px;
-        }
-
-        .header-section .subtitle {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            font-weight: 300;
-        }
-
-        .pharmacy-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            color: var(--secondary-color);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .search-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-large);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .search-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--gradient-primary);
-        }
-
-        .form-floating {
-            margin-bottom: 20px;
-        }
-
-        .form-control {
-            border: 2px solid #e5e7eb;
-            border-radius: 15px;
-            padding: 15px 20px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.9);
-            height: auto;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
-            background: white;
-            transform: translateY(-2px);
-        }
-
-        .form-floating label {
-            color: #6b7280;
-            font-weight: 500;
-            padding-left: 20px;
-        }
-
-        .btn-verify {
-            background: var(--gradient-primary);
-            border: none;
-            border-radius: 15px;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: white;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: var(--shadow-medium);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-verify:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-large);
-            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
-        }
-
-        .btn-verify:active {
-            transform: translateY(-1px);
-        }
-
-        .btn-verify::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn-verify:hover::before {
-            left: 100%;
-        }
-
-        .result-card {
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 25px;
-            border: none;
-            box-shadow: var(--shadow-medium);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .result-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-        }
-
-        .alert-success {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            color: #065f46;
-            border-left: 5px solid var(--secondary-color);
-        }
-
-        .alert-success::before {
-            background: var(--gradient-secondary);
-        }
-
-        .alert-danger {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            color: #991b1b;
-            border-left: 5px solid var(--danger-color);
-        }
-
-        .alert-danger::before {
-            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-        }
-
-        .alert-warning {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            color: #92400e;
-            border-left: 5px solid var(--warning-color);
-        }
-
-        .alert-warning::before {
-            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-        }
-
-        .info-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 25px;
-            box-shadow: var(--shadow-medium);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .section-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .section-title .icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-        }
-
-        .incompatible-icon {
-            background: var(--gradient-secondary);
-        }
-
-        .unavailable-icon {
-            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-        }
-
-        .medication-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .medication-item {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 12px;
-            padding: 15px 20px;
-            margin-bottom: 10px;
-            border-left: 4px solid;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .medication-item:hover {
-            transform: translateX(10px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        .incompatible-item {
-            border-left-color: var(--secondary-color);
-        }
-
-        .unavailable-item {
-            border-left-color: var(--danger-color);
-        }
-
-        .medication-icon {
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1rem;
-            flex-shrink: 0;
-        }
-
-        .incompatible-med-icon {
-            background: var(--gradient-secondary);
-        }
-
-        .unavailable-med-icon {
-            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-        }
-
-        .result-text {
-            font-size: 1.2rem;
-            font-weight: 600;
-            line-height: 1.6;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .result-icon {
-            font-size: 1.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .header-section h1 {
-                font-size: 2.2rem;
-            }
-            
-            .search-card {
-                padding: 25px;
-            }
-            
-            .btn-verify {
-                width: 100%;
-                margin-top: 15px;
-            }
-            
-            .pharmacy-icon {
-                font-size: 3rem;
-            }
-        }
-
-        .loading-animation {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Système de Gestion d'Ordonnances</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f9f9f9; font-family: Arial, sans-serif; }
+    .top-nav { background-color: #0d6efd; padding: 0.8rem; color: #fff; }
+    .top-nav a { color: #fff; text-decoration: none; }
+    .nav-links li { list-style: none; margin: 0 10px; }
+    .nav-links a { color: #fff; font-weight: 500; }
+    .user-info { margin-right: 10px; font-weight: 500; }
+    .page-header { margin: 2rem 0; text-align: center; }
+    .btn-search { background-color: #0d6efd; color: white; }
+    .prescription-wrapper { background: #fff; padding: 20px; border-radius: 12px; margin-top: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .info-card { background: #f1f5f9; border-radius: 8px; padding: 15px; }
+    .info-label { font-weight: 600; color: #333; }
+    .info-value { color: #555; }
+    .section-title { margin-top: 20px; margin-bottom: 10px; font-weight: bold; }
+    .medication-list { padding-left: 20px; }
+    .medication-item { margin-bottom: 5px; }
+    .prescription-footer { margin-top: 20px; text-align: center; font-size: 14px; color: green; }
+    .alert-modern { margin-top: 20px; }
+  </style>
 </head>
 <body>
-    <div class="d-flex justify-content-end align-items-center mb-3">
-  <span class="me-3 fw-semibold">
-    <i class="bi bi-person-circle me-1"></i>
-    {{ getUsername() }}
-  </span>
-  <button class="btn btn-outline-danger btn-sm" (click)="logout()">
-    <i class="bi bi-box-arrow-right me-1"></i>
-    Déconnexion
-  </button>
-</div>
-<li>
+  <!-- Navigation Header -->
+  <nav class="top-nav">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center">
+        <a href="#" class="nav-brand">
+          <i class="bi bi-hospital me-2"></i> MedSystem
+        </a>
+        <ul class="nav-links d-none d-md-flex">
+          <li>
             <a routerLink="/front">
-              <i class="bi bi-circle"></i><span> Table Patient</span>
+              <i class="bi bi-table"></i> <span>Table Patient</span>
             </a>
           </li>
           <li>
-            <a routerLink="/pharmacy">
-              <i class="bi bi-circle"></i><span> Table Patient</span>
+            <a routerLink="/pharmacy" class="active">
+              <i class="bi bi-capsule"></i> <span>Pharmacie</span>
             </a>
           </li>
-    <div class="main-container">
-        <!-- En-tête -->
-        <div class="header-section">
-            <div class="pharmacy-icon">
-                <i class="fas fa-pills"></i>
-            </div>
-            <h1>Vérification d'Ordonnance</h1>
-            <p class="subtitle">Système de contrôle pharmaceutique professionnel</p>
+        </ul>
+        <div class="user-section">
+          <div class="user-info">
+            <i class="bi bi-person-circle"></i>
+            <span>{{ getUsername() }}</span>
+          </div>
+          <button class="btn btn-outline-danger btn-sm" (click)="logout()">
+            <i class="bi bi-box-arrow-right me-1"></i> Déconnexion
+          </button>
         </div>
-
-        <!-- Formulaire de recherche -->
-        <div class="search-card">
-            <div class="row">
-                <div class="col-md-5">
-                    <div class="form-floating">
-                        <input id="nom" type="text" [(ngModel)]="nom" class="form-control" placeholder="Nom du patient">
-                        <label for="nom"><i class="fas fa-user me-2"></i>Nom du patient</label>
-                    </div>
-                </div>
-                <div class="col-md-5">
-                    <div class="form-floating">
-                        <input id="prenom" type="text" [(ngModel)]="prenom" class="form-control" placeholder="Prénom du patient">
-                        <label for="prenom"><i class="fas fa-user me-2"></i>Prénom du patient</label>
-                    </div>
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button class="btn btn-verify w-100" (click)="verifierOrdonnance()">
-                        <i class="fas fa-search me-2"></i>
-                        Vérifier
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Résultat -->
-        <div *ngIf="resultat" class="result-card fade-in"
-             [ngClass]="{'alert-success': resultat.startsWith('✅'),
-                        'alert-danger': resultat.startsWith('❌'),
-                        'alert-warning': resultat.startsWith('⚠️')}">
-            <div class="result-text">
-                <span class="result-icon">
-                    <i *ngIf="resultat.startsWith('✅')" class="fas fa-check-circle"></i>
-                    <i *ngIf="resultat.startsWith('❌')" class="fas fa-times-circle"></i>
-                    <i *ngIf="resultat.startsWith('⚠️')" class="fas fa-exclamation-triangle"></i>
-                </span>
-                {{ resultat }}
-            </div>
-        </div>
-
-        <!-- Médicaments incompatibles -->
-        <div *ngIf="incompatibles.length > 0" class="info-section fade-in">
-            <h5 class="section-title">
-                <span class="icon incompatible-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </span>
-                Interactions Médicamenteuses Détectées
-            </h5>
-            <ul class="medication-list">
-                <li *ngFor="let pair of incompatibles" class="medication-item incompatible-item">
-                    <div class="medication-icon incompatible-med-icon">
-                        <i class="fas fa-pills"></i>
-                    </div>
-                    <strong>{{ pair[0] }}</strong> + <strong>{{ pair[1] }}</strong>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Médicaments indisponibles -->
-        <div *ngIf="indisponibles.length > 0" class="info-section fade-in">
-            <h5 class="section-title">
-                <span class="icon unavailable-icon">
-                    <i class="fas fa-times-circle"></i>
-                </span>
-                Médicaments Non Disponibles en Stock
-            </h5>
-            <ul class="medication-list">
-                <li *ngFor="let med of indisponibles" class="medication-item unavailable-item">
-                    <div class="medication-icon unavailable-med-icon">
-                        <i class="fas fa-capsules"></i>
-                    </div>
-                    {{ med }}
-                </li>
-            </ul>
-        </div>
+      </div>
     </div>
+  </nav>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+    <div class="animate__animated animate__fadeInUp">
+      
+      <!-- Page Header -->
+      <header class="page-header">
+        <h1 class="page-title">
+          <i class="bi bi-hospital"></i> Vérification d'Ordonnance
+        </h1>
+        <p class="subtitle">Système de contrôle pharmaceutique intelligent et sécurisé</p>
+      </header>
+
+      <!-- Search Section -->
+      <section class="search-container">
+        <div class="search-header">
+          <i class="bi bi-search fs-4 text-primary"></i>
+          <h4>Recherche de Patient</h4>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input type="text" class="form-control" [(ngModel)]="nom" id="nom" placeholder="Nom du patient">
+              <label for="nom"><i class="bi bi-person me-2"></i>Nom du patient</label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input type="text" class="form-control" [(ngModel)]="prenom" id="prenom" placeholder="Prénom du patient">
+              <label for="prenom"><i class="bi bi-person me-2"></i>Prénom du patient</label>
+            </div>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-search w-100" (click)="verifierOrdonnance()">
+              <i class="bi bi-search me-2"></i> Vérifier Ordonnance
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Résultat Vérification -->
+      <div *ngIf="resultat" class="alert alert-modern fade-in"
+           [ngClass]="{
+             'alert-success': resultat.startsWith('✅'),
+             'alert-danger': resultat.startsWith('❌'),
+             'alert-warning': resultat.startsWith('⚠️')
+           }">
+        <i *ngIf="resultat.startsWith('✅')" class="bi bi-check-circle-fill text-success me-2"></i>
+        <i *ngIf="resultat.startsWith('❌')" class="bi bi-x-circle-fill text-danger me-2"></i>
+        <i *ngIf="resultat.startsWith('⚠️')" class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+        {{ resultat }}
+      </div>
+
+      <!-- Médicaments incompatibles -->
+      <section *ngIf="incompatibles.length > 0" class="prescription-wrapper">
+        <h5 class="section-title text-danger">
+          <i class="bi bi-exclamation-triangle"></i> Interactions Médicamenteuses
+        </h5>
+        <ul class="medication-list">
+          <li *ngFor="let pair of incompatibles" class="medication-item text-danger">
+            <i class="bi bi-capsule me-2"></i> <strong>{{ pair[0] }}</strong> + <strong>{{ pair[1] }}</strong>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Médicaments indisponibles -->
+      <section *ngIf="indisponibles.length > 0" class="prescription-wrapper">
+        <h5 class="section-title text-secondary">
+          <i class="bi bi-x-circle"></i> Médicaments Indisponibles
+        </h5>
+        <ul class="medication-list">
+          <li *ngFor="let med of indisponibles" class="medication-item text-muted">
+            <i class="bi bi-capsule me-2"></i> {{ med }}
+          </li>
+        </ul>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
